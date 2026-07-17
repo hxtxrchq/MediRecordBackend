@@ -136,10 +136,48 @@ const getAccessLogs = async (req, res, next) => {
   }
 };
 
+const getAllAccessLogs = async (req, res, next) => {
+  try {
+    const role = req.user.role;
+    const wallet = req.user.wallet;
+
+    let logs = [];
+    if (role === 'ADMIN') {
+      logs = await AccessLog.findAll({
+        include: [{ model: Document, as: 'Document', attributes: ['fileName', 'category', 'ownerWallet'] }],
+        order: [['createdAt', 'DESC']]
+      });
+    } else if (role === 'PATIENT') {
+      logs = await AccessLog.findAll({
+        include: [{ 
+          model: Document, 
+          as: 'Document', 
+          where: { ownerWallet: wallet },
+          attributes: ['fileName', 'category'] 
+        }],
+        order: [['createdAt', 'DESC']]
+      });
+    } else {
+      // DOCTOR, CLINIC, INSURANCE
+      logs = await AccessLog.findAll({
+        where: { requesterWallet: wallet },
+        include: [{ model: Document, as: 'Document', attributes: ['fileName', 'category', 'ownerWallet'] }],
+        order: [['createdAt', 'DESC']]
+      });
+    }
+
+    return res.json(logs);
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = {
   syncPermission,
   syncRevocation,
   getIssuedPermissions,
   getReceivedPermissions,
   getAccessLogs,
+  getAllAccessLogs,
 };
+
