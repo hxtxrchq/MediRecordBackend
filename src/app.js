@@ -10,7 +10,9 @@ const app = express();
 const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:5173',
-  'https://medirecord.vercel.app'
+  'https://medirecord.vercel.app',
+  'https://medirecord.chiqo.site',
+  'https://www.medirecord.chiqo.site'
 ];
 
 app.use(cors({

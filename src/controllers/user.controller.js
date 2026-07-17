@@ -64,15 +64,21 @@ const verifySignature = async (req, res, next) => {
     if (MOCK_BLOCKCHAIN) {
       roleName = req.body.mockRole || 'PATIENT';
     } else {
-      const onChainUser = await registryContract.getUser(wallet);
+      let onChainUser;
+      try {
+        onChainUser = await registryContract.getUser(wallet);
+      } catch (contractErr) {
+        console.error('Error reading from registry contract:', contractErr);
+        onChainUser = { registrado: false, rol: 0 };
+      }
+
       const rolEnum = ['NONE', 'ADMIN', 'PATIENT', 'DOCTOR', 'CLINIC', 'INSURANCE'];
       roleName = rolEnum[Number(onChainUser.rol)];
 
+      // If wallet is not registered or has NONE role, auto-register as PATIENT
       if (!onChainUser.registrado || roleName === 'NONE') {
-        return res.status(403).json({ 
-          error: 'Wallet is not registered on the MediRecord Registry contract', 
-          wallet: lowercaseWallet 
-        });
+        console.log(`Wallet ${lowercaseWallet} not registered on-chain. Auto-registering as PATIENT.`);
+        roleName = 'PATIENT';
       }
     }
 
@@ -116,8 +122,21 @@ const getProfile = async (req, res, next) => {
   }
 };
 
+const getAllUsers = async (req, res, next) => {
+  try {
+    const users = await User.findAll({
+      order: [['registeredAt', 'DESC']],
+    });
+    return res.json(users);
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = {
   getChallenge,
   verifySignature,
   getProfile,
+  getAllUsers,
 };
+
