@@ -11,6 +11,11 @@ const User = sequelize.define('User', {
       this.setDataValue('wallet', value.toLowerCase());
     }
   },
+  displayName: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    defaultValue: null,
+  },
   role: {
     type: DataTypes.STRING,
     allowNull: false,

@@ -124,10 +124,42 @@ const getProfile = async (req, res, next) => {
 
 const getAllUsers = async (req, res, next) => {
   try {
-    const users = await User.findAll({
-      order: [['registeredAt', 'DESC']],
-    });
+    const users = await User.findAll({ order: [['registeredAt', 'DESC']] });
     return res.json(users);
+  } catch (err) {
+    next(err);
+  }
+};
+
+const updateProfile = async (req, res, next) => {
+  try {
+    const { displayName } = req.body;
+    if (!displayName || typeof displayName !== 'string' || displayName.trim().length < 2) {
+      return res.status(400).json({ error: 'El nombre debe tener al menos 2 caracteres.' });
+    }
+    const user = await User.findByPk(req.user.wallet);
+    if (!user) return res.status(404).json({ error: 'Usuario no encontrado.' });
+    user.displayName = displayName.trim();
+    await user.save();
+    return res.json({ wallet: user.wallet, displayName: user.displayName, role: user.role });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// Admin can update the displayName of any user
+const updateUserName = async (req, res, next) => {
+  try {
+    const { wallet } = req.params;
+    const { displayName } = req.body;
+    if (!displayName || typeof displayName !== 'string' || displayName.trim().length < 2) {
+      return res.status(400).json({ error: 'El nombre debe tener al menos 2 caracteres.' });
+    }
+    const user = await User.findByPk(wallet.toLowerCase());
+    if (!user) return res.status(404).json({ error: 'Usuario no encontrado.' });
+    user.displayName = displayName.trim();
+    await user.save();
+    return res.json({ wallet: user.wallet, displayName: user.displayName, role: user.role });
   } catch (err) {
     next(err);
   }
@@ -138,5 +170,7 @@ module.exports = {
   verifySignature,
   getProfile,
   getAllUsers,
+  updateProfile,
+  updateUserName,
 };
 
