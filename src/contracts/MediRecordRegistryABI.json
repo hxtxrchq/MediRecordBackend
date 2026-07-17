@@ -1,0 +1,692 @@
+[
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "medicalAccessNFTAddress",
+				"type": "address"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"inputs": [],
+		"name": "DocumentAlreadyRegistered",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "DocumentNotRegistered",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "InvalidAuthorizationTarget",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "InvalidDocumentHash",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "InvalidDocumentId",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "InvalidExpiration",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "InvalidRole",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "NFTCallFailed",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "NotOwner",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "NotPatient",
+		"type": "error"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
+			}
+		],
+		"name": "OwnableInvalidOwner",
+		"type": "error"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "account",
+				"type": "address"
+			}
+		],
+		"name": "OwnableUnauthorizedAccount",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "PermissionAlreadyExists",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "PermissionAlreadyRevoked",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "PermissionNotFound",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "UserAlreadyRegistered",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "UserNotRegistered",
+		"type": "error"
+	},
+	{
+		"inputs": [],
+		"name": "ZeroAddressNotAllowed",
+		"type": "error"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "bytes32",
+				"name": "idDocumento",
+				"type": "bytes32"
+			},
+			{
+				"indexed": true,
+				"internalType": "bytes32",
+				"name": "hashDocumento",
+				"type": "bytes32"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
+			}
+		],
+		"name": "DocumentoRegistrado",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "bytes32",
+				"name": "idDocumento",
+				"type": "bytes32"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "solicitante",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "timestamp",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "bool",
+				"name": "concedido",
+				"type": "bool"
+			}
+		],
+		"name": "IntentoValidacionAcceso",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "previousOwner",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "newOwner",
+				"type": "address"
+			}
+		],
+		"name": "OwnershipTransferred",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "bytes32",
+				"name": "idPermiso",
+				"type": "bytes32"
+			},
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			},
+			{
+				"indexed": true,
+				"internalType": "bytes32",
+				"name": "idDocumento",
+				"type": "bytes32"
+			},
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "autorizado",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint64",
+				"name": "expiresAt",
+				"type": "uint64"
+			}
+		],
+		"name": "PermisoEmitido",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "bytes32",
+				"name": "idPermiso",
+				"type": "bytes32"
+			},
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "revocadoPor",
+				"type": "address"
+			}
+		],
+		"name": "PermisoRevocado",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "usuario",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "enum MediRecordRegistry.Rol",
+				"name": "rolAnterior",
+				"type": "uint8"
+			},
+			{
+				"indexed": false,
+				"internalType": "enum MediRecordRegistry.Rol",
+				"name": "rolNuevo",
+				"type": "uint8"
+			}
+		],
+		"name": "RolUsuarioActualizado",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "usuario",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "enum MediRecordRegistry.Rol",
+				"name": "rol",
+				"type": "uint8"
+			}
+		],
+		"name": "UsuarioRegistrado",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes32",
+				"name": "documentId",
+				"type": "bytes32"
+			}
+		],
+		"name": "documentExists",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "exists",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes32",
+				"name": "documentId",
+				"type": "bytes32"
+			}
+		],
+		"name": "getDocument",
+		"outputs": [
+			{
+				"components": [
+					{
+						"internalType": "bytes32",
+						"name": "idDocumento",
+						"type": "bytes32"
+					},
+					{
+						"internalType": "bytes32",
+						"name": "hashDocumento",
+						"type": "bytes32"
+					},
+					{
+						"internalType": "address",
+						"name": "owner",
+						"type": "address"
+					}
+				],
+				"internalType": "struct MediRecordRegistry.Documento",
+				"name": "record",
+				"type": "tuple"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes32",
+				"name": "permissionId",
+				"type": "bytes32"
+			}
+		],
+		"name": "getPermission",
+		"outputs": [
+			{
+				"components": [
+					{
+						"internalType": "bytes32",
+						"name": "idPermiso",
+						"type": "bytes32"
+					},
+					{
+						"internalType": "uint256",
+						"name": "tokenId",
+						"type": "uint256"
+					},
+					{
+						"internalType": "bytes32",
+						"name": "idDocumento",
+						"type": "bytes32"
+					},
+					{
+						"internalType": "bytes32",
+						"name": "hashDocumento",
+						"type": "bytes32"
+					},
+					{
+						"internalType": "address",
+						"name": "patient",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "autorizado",
+						"type": "address"
+					},
+					{
+						"internalType": "uint64",
+						"name": "issuedAt",
+						"type": "uint64"
+					},
+					{
+						"internalType": "uint64",
+						"name": "expiresAt",
+						"type": "uint64"
+					},
+					{
+						"internalType": "bool",
+						"name": "revoked",
+						"type": "bool"
+					}
+				],
+				"internalType": "struct MediRecordRegistry.Permiso",
+				"name": "record",
+				"type": "tuple"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes32",
+				"name": "documentId",
+				"type": "bytes32"
+			},
+			{
+				"internalType": "address",
+				"name": "authorized",
+				"type": "address"
+			}
+		],
+		"name": "getPermissionByDocumentAndAuthorized",
+		"outputs": [
+			{
+				"internalType": "bytes32",
+				"name": "permissionId",
+				"type": "bytes32"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "getPermissionByTokenId",
+		"outputs": [
+			{
+				"internalType": "bytes32",
+				"name": "permissionId",
+				"type": "bytes32"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "user",
+				"type": "address"
+			}
+		],
+		"name": "getUser",
+		"outputs": [
+			{
+				"components": [
+					{
+						"internalType": "enum MediRecordRegistry.Rol",
+						"name": "rol",
+						"type": "uint8"
+					},
+					{
+						"internalType": "bool",
+						"name": "registrado",
+						"type": "bool"
+					}
+				],
+				"internalType": "struct MediRecordRegistry.Usuario",
+				"name": "record",
+				"type": "tuple"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "requester",
+				"type": "address"
+			},
+			{
+				"internalType": "bytes32",
+				"name": "documentId",
+				"type": "bytes32"
+			}
+		],
+		"name": "hasAccess",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "granted",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes32",
+				"name": "documentId",
+				"type": "bytes32"
+			},
+			{
+				"internalType": "address",
+				"name": "authorized",
+				"type": "address"
+			},
+			{
+				"internalType": "uint64",
+				"name": "expiresAt",
+				"type": "uint64"
+			}
+		],
+		"name": "issuePermission",
+		"outputs": [
+			{
+				"internalType": "bytes32",
+				"name": "permissionId",
+				"type": "bytes32"
+			},
+			{
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "owner",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes32",
+				"name": "permissionId",
+				"type": "bytes32"
+			}
+		],
+		"name": "permissionExists",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "exists",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes32",
+				"name": "documentId",
+				"type": "bytes32"
+			},
+			{
+				"internalType": "bytes32",
+				"name": "documentHash",
+				"type": "bytes32"
+			}
+		],
+		"name": "registerDocument",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "user",
+				"type": "address"
+			},
+			{
+				"internalType": "enum MediRecordRegistry.Rol",
+				"name": "role",
+				"type": "uint8"
+			}
+		],
+		"name": "registerUser",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "renounceOwnership",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "bytes32",
+				"name": "permissionId",
+				"type": "bytes32"
+			}
+		],
+		"name": "revokePermission",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "newOwner",
+				"type": "address"
+			}
+		],
+		"name": "transferOwnership",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "user",
+				"type": "address"
+			},
+			{
+				"internalType": "enum MediRecordRegistry.Rol",
+				"name": "role",
+				"type": "uint8"
+			}
+		],
+		"name": "updateUserRole",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "requester",
+				"type": "address"
+			},
+			{
+				"internalType": "bytes32",
+				"name": "documentId",
+				"type": "bytes32"
+			}
+		],
+		"name": "validateAccess",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "granted",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	}
+]
