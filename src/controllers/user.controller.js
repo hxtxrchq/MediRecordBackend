@@ -165,6 +165,25 @@ const updateUserName = async (req, res, next) => {
   }
 };
 
+// Anyone authenticated (e.g. patients) can search for doctors/clinics to share documents with
+const getRecipients = async (req, res, next) => {
+  try {
+    const { Op } = require('sequelize');
+    const recipients = await User.findAll({
+      where: {
+        role: {
+          [Op.in]: ['DOCTOR', 'CLINIC', 'INSURANCE']
+        },
+        status: 'ACTIVE'
+      },
+      order: [['registeredAt', 'DESC']]
+    });
+    return res.json(recipients);
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = {
   getChallenge,
   verifySignature,
@@ -172,5 +191,7 @@ module.exports = {
   getAllUsers,
   updateProfile,
   updateUserName,
+  getRecipients,
 };
+
 
